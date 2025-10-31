@@ -119,6 +119,13 @@
         public static Result<TValue> Success(TValue value) => new(value);
 
         /// <summary>
+        /// Creates a failed result with the specified error.
+        /// </summary>
+        /// <param name="error">The error describing why the operation failed.</param>
+        /// <returns>A <see cref="Result{TValue}"/> representing a failed operation.</returns>
+        public static new Result<TValue> Failure(Error error) => new(error);
+
+        /// <summary>
         /// Implicitly converts a value to a successful <see cref="Result{TValue}"/>.
         /// </summary>
         /// <param name="value">The value to convert.</param>
