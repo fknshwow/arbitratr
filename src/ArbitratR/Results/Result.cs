@@ -1,17 +1,19 @@
-﻿namespace ArbitratR.Results
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace ArbitratR.Results
 {
     /// <summary>
     /// Represents the result of an operation, encapsulating either a success or failure state with an optional error.
     /// </summary>
-    public class Result
+    public readonly struct Result
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Result"/> class.
+        /// Initializes a new instance of the <see cref="Result"/> struct.
         /// </summary>
         /// <param name="isSuccess">Indicates whether the operation was successful.</param>
         /// <param name="error">The error associated with a failed operation, or <see cref="Error.None"/> for success.</param>
         /// <exception cref="ArgumentException">Thrown when isSuccess is true but error is not <see cref="Error.None"/>, or when isSuccess is false but error is <see cref="Error.None"/>.</exception>
-        protected Result(bool isSuccess, Error? error)
+        private Result(bool isSuccess, Error? error)
         {
             if (isSuccess && error != Error.None ||
                 !isSuccess && error == Error.None)
@@ -29,14 +31,16 @@
         public Error? Error { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the operation failed.
-        /// </summary>
-        public bool IsFailure => !IsSuccess;
-
-        /// <summary>
         /// Gets a value indicating whether the operation was successful.
         /// </summary>
+        [MemberNotNullWhen(false, nameof(Error))]
         public bool IsSuccess { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the operation failed.
+        /// </summary>
+        [MemberNotNullWhen(true, nameof(Error))]
+        public bool IsFailure => !IsSuccess;
 
         /// <summary>
         /// Creates a successful result.
@@ -74,36 +78,42 @@
     /// Represents the result of an operation that returns a value, encapsulating either a success state with a value or a failure state with an error.
     /// </summary>
     /// <typeparam name="TValue">The type of the value returned by a successful operation.</typeparam>
-    public class Result<TValue> : Result
+    public readonly struct Result<TValue>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Result{TValue}"/> class representing a successful operation.
+        /// Initializes a new instance of the <see cref="Result{TValue}"/> struct.
+        /// </summary>
+        /// <param name="isSuccess">Indicates whether the operation was successful.</param>
+        /// <param name="error">The error associated with a failed operation, or <see cref="Error.None"/> for success.</param>
+        /// <exception cref="ArgumentException">Thrown when isSuccess is true but error is not <see cref="Error.None"/>, or when isSuccess is false but error is <see cref="Error.None"/>.</exception>
+        private Result(bool isSuccess, Error? error)
+        {
+            if (isSuccess && error != Error.None ||
+                !isSuccess && error == Error.None)
+            {
+                throw new ArgumentException("Invalid error", nameof(error));
+            }
+
+            IsSuccess = isSuccess;
+            Error = error;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Result{TValue}"/> struct representing a successful operation.
         /// </summary>
         /// <param name="value">The value returned by the successful operation.</param>
-        private Result(TValue value) : base(true, Error.None)
+        private Result(TValue value) : this(true, Error.None)
         {
             Value = value;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Result{TValue}"/> class representing a failed operation.
+        /// Initializes a new instance of the <see cref="Result{TValue}"/> struct representing a failed operation.
         /// </summary>
         /// <param name="error">The error describing why the operation failed.</param>
-        private Result(Error error) : base(false, error)
+        private Result(Error error) : this(false, error)
         {
             Value = default;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Result{TValue}"/> class with the specified value, success state, and error.
-        /// </summary>
-        /// <param name="value">The value returned by the operation.</param>
-        /// <param name="isSuccess">Indicates whether the operation was successful.</param>
-        /// <param name="error">The error associated with a failed operation.</param>
-        public Result(TValue? value, bool isSuccess, Error error)
-            : base(isSuccess, error)
-        {
-            Value = value;
         }
 
         /// <summary>
@@ -112,18 +122,30 @@
         public TValue? Value { get; }
 
         /// <summary>
+        /// Gets the error associated with the failed operation, or <c>null</c> if the operation was successful.
+        /// </summary>
+        public Error? Error { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the operation was successful.
+        /// </summary>
+        [MemberNotNullWhen(true, nameof(Value))]
+        [MemberNotNullWhen(false, nameof(Error))]
+        public bool IsSuccess { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the operation failed.
+        /// </summary>
+        [MemberNotNullWhen(false, nameof(Value))]
+        [MemberNotNullWhen(true, nameof(Error))]
+        public bool IsFailure => !IsSuccess;
+
+        /// <summary>
         /// Creates a successful result with the specified value.
         /// </summary>
         /// <param name="value">The value returned by the successful operation.</param>
         /// <returns>A <see cref="Result{TValue}"/> representing a successful operation with the specified value.</returns>
         public static Result<TValue> Success(TValue value) => new(value);
-
-        /// <summary>
-        /// Creates a failed result with the specified error.
-        /// </summary>
-        /// <param name="error">The error describing why the operation failed.</param>
-        /// <returns>A <see cref="Result{TValue}"/> representing a failed operation.</returns>
-        public static new Result<TValue> Failure(Error error) => new(error);
 
         /// <summary>
         /// Implicitly converts a value to a successful <see cref="Result{TValue}"/>.
