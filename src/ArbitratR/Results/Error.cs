@@ -15,12 +15,12 @@
         /// <summary>
         /// Represents an error indicating that a specified result value is null.
         /// </summary>
-        public static readonly Error NullValue = new("Error.NullValue", "The specified result value is null.");
+        public static readonly Error NullValue = new("Error-NullValue", "The specified result value is null.");
 
         /// <summary>
         /// Represents an error indicating that a specified condition was not met.
         /// </summary>
-        public static readonly Error ConditionNotMet = new("Error.ConditionNotMet", "The specified condition was not met.");
+        public static readonly Error ConditionNotMet = new("Error-ConditionNotMet", "The specified condition was not met.");
     }
 
     /// <summary>
@@ -34,7 +34,7 @@
     /// Represents a validation error containing one or more validation failures.
     /// </summary>
     /// <param name="Errors">A dictionary of validation errors, where the key is the field name and the value is an array of error messages for that field.</param>
-    public record ValidationError(IDictionary<string, string[]?> Errors) : Error("Error.Validation", "A validation error has occured.");
+    public record ValidationError(IDictionary<string, string[]?> Errors, string Code = "Error-Validation", string? Description = "A validation error has occured.") : Error(Code, Description);
 
     /// <summary>
     /// Represents an error indicating that a requested resource was not found.
