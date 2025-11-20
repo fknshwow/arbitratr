@@ -7,7 +7,7 @@
     
     <!-- NuGet Package Properties -->
     <PackageId>ArbitratR</PackageId>
-    <PackageVersion>1.0.3</PackageVersion>
+    <PackageVersion>1.0.4</PackageVersion>
     <Authors>fknshwow</Authors>
     <Description>A CQRS library with command and query handling support</Description>
     <PackageTags>CQRS;Commands;Queries;DependencyInjection</PackageTags>
