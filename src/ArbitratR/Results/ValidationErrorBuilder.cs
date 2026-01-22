@@ -14,23 +14,23 @@ public class ValidationErrorBuilder
         return new ValidationErrorBuilder();
     }
     
-    public ValidationErrorBuilder AddError(string errorCode, string errorDetails)
+    public void AddError(Error error)
     {
-        if (Errors.TryGetValue(errorCode, out var existingErrors))
+        if (error.Description is null) return;
+        
+        if (Errors.TryGetValue(error.Code, out var existingErrors))
         {
             if (existingErrors is null)
             {
-                Errors[errorCode] = [errorDetails];
+                Errors[error.Code] = [error.Description];
             }
             else
             {
-                string[] updatedErrors = [..existingErrors, errorDetails];
-                Errors[errorCode] = updatedErrors;
+                string[] updatedErrors = [..existingErrors, error.Description];
+                Errors[error.Code] = updatedErrors;
             }
         }
-        else Errors.TryAdd(errorCode, [errorDetails]);
-
-        return this;
+        else Errors.TryAdd(error.Code, [error.Description]);
     }
     
     public Result ToResult()
