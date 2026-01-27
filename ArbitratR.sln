@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36511.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArbitratR", "src\ArbitratR\ArbitratR.csproj", "{46D2DDFA-F407-B355-28EA-282D6739BB32}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArbitratR.test", "ArbitratR.test\ArbitratR.test.csproj", "{7163B3D7-2B62-48E8-A447-1B35AF349372}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{46D2DDFA-F407-B355-28EA-282D6739BB32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46D2DDFA-F407-B355-28EA-282D6739BB32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46D2DDFA-F407-B355-28EA-282D6739BB32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7163B3D7-2B62-48E8-A447-1B35AF349372}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7163B3D7-2B62-48E8-A447-1B35AF349372}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7163B3D7-2B62-48E8-A447-1B35AF349372}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7163B3D7-2B62-48E8-A447-1B35AF349372}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -17,6 +17,33 @@ public class ValidationErrorBuilder
     {
         return new ValidationErrorBuilder();
     }
+
+    /// <summary>
+    /// Merges another <see cref="ValidationErrorBuilder"/> into this builder, with errors inside the two builders merged.
+    /// </summary>
+    /// <param name="builder">An instance of <see cref="ValidationErrorBuilder"/> to be merged in.</param>
+    public void Merge(ValidationErrorBuilder builder)
+    {
+        foreach (var (key, value) in builder.Errors)
+        {
+            if (Errors.TryGetValue(key, out var existingErrors))
+            {
+                if (existingErrors is null)
+                {
+                    Errors[key] = value;
+                }
+                else if (value is not null)
+                {
+                    string[] updatedErrors = [..existingErrors, ..value];
+                    Errors[key] = updatedErrors;
+                }
+            }
+            else
+            {
+                Errors.TryAdd(key, value);
+            }
+        }
+    }
     
     /// <summary>
     /// Adds an <see cref="Error"/> to the dictionary of errors.
