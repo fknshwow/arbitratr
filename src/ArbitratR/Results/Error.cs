@@ -33,7 +33,9 @@
     /// <summary>
     /// Represents a validation error containing one or more validation failures.
     /// </summary>
+    /// <param name="Code">The error code that uniquely identifies the validation error.</param>
     /// <param name="Errors">A dictionary of validation errors, where the key is the field name and the value is an array of error messages for that field.</param>
+    /// <param name="Description">A description providing details about the validation error.</param>
     public record ValidationError(IDictionary<string, string[]?> Errors, string Code = "Error-Validation", string? Description = "A validation error has occured.") : Error(Code, Description);
 
     /// <summary>

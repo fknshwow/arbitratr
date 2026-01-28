@@ -1,5 +1,8 @@
 ﻿namespace ArbitratR.Results;
 
+/// <summary>
+/// A builder class for constructing validation errors.
+/// </summary>
 public class ValidationErrorBuilder
 {
     private Dictionary<string, string[]?> Errors { get; }
@@ -12,7 +15,7 @@ public class ValidationErrorBuilder
     /// <summary>
     /// Creates a new instance of <see cref="ValidationErrorBuilder"/>.
     /// </summary>
-    /// <returns>a new instance of <see cref="ValidationErrorBuilder"/>.</returns>
+    /// <returns>A new instance of <see cref="ValidationErrorBuilder"/>.</returns>
     public static ValidationErrorBuilder Create()
     {
         return new ValidationErrorBuilder();
