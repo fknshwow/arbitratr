@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     
     <!-- NuGet Package Properties -->
     <PackageId>ArbitratR</PackageId>
-    <PackageVersion>1.0.9</PackageVersion>
+    <PackageVersion>1.1.0</PackageVersion>
     <Authors>fknshwow</Authors>
     <Description>A CQRS library with command and query handling support</Description>
     <PackageTags>CQRS;Commands;Queries;DependencyInjection</PackageTags>
