@@ -15,12 +15,12 @@
         /// <summary>
         /// Represents an error indicating that a specified result value is null.
         /// </summary>
-        public static readonly Error NullValue = new("Error-NullValue", "The specified result value is null.");
+        public static Error NullValue => new($"Error{ErrorOptions.Separator}NullValue", "The specified result value is null.");
 
         /// <summary>
         /// Represents an error indicating that a specified condition was not met.
         /// </summary>
-        public static readonly Error ConditionNotMet = new("Error-ConditionNotMet", "The specified condition was not met.");
+        public static Error ConditionNotMet => new($"Error{ErrorOptions.Separator}ConditionNotMet", "The specified condition was not met.");
     }
 
     /// <summary>
@@ -36,7 +36,25 @@
     /// <param name="Code">The error code that uniquely identifies the validation error.</param>
     /// <param name="Errors">A dictionary of validation errors, where the key is the field name and the value is an array of error messages for that field.</param>
     /// <param name="Description">A description providing details about the validation error.</param>
-    public record ValidationError(IDictionary<string, string[]?> Errors, string Code = "Error-Validation", string? Description = "A validation error has occured.") : Error(Code, Description);
+    public record ValidationError : Error
+    {
+        /// <summary>
+        /// Gets the dictionary of validation errors, where the key is the field name and the value is an array of error messages for that field.
+        /// </summary>
+        public IDictionary<string, string[]?> Errors { get; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ValidationError"/> record.
+        /// </summary>
+        /// <param name="Errors">A dictionary of validation errors.</param>
+        /// <param name="Code">The error code that uniquely identifies the validation error.</param>
+        /// <param name="Description">A description providing details about the validation error.</param>
+        public ValidationError(IDictionary<string, string[]?> Errors, string? Code = null, string? Description = "A validation error has occured.")
+            : base(Code ?? $"Error{ErrorOptions.Separator}Validation", Description)
+        {
+            this.Errors = Errors;
+        }
+    }
 
     /// <summary>
     /// Represents an error indicating that a requested resource was not found.

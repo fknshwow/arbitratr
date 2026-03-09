@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using ArbitratR.Results;
+using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 namespace ArbitratR.CQRS
@@ -17,6 +18,15 @@ namespace ArbitratR.CQRS
         public ArbitratRConfiguration(IServiceCollection services)
         {
             _services = services;
+        }
+
+        /// <summary>
+        /// Sets the separator character used in error codes.
+        /// </summary>
+        /// <param name="separator">The character to use as a separator in error codes (e.g. '-', '.', '_').</param>
+        public void SetErrorCodeSeparator(char separator)
+        {
+            ErrorOptions.Separator = separator;
         }
 
         /// <summary>
