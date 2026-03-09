@@ -1,4 +1,5 @@
-﻿using ArbitratR.Results;
+using ArbitratR.Events;
+using ArbitratR.Results;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
@@ -26,6 +27,13 @@ namespace ArbitratR.CQRS
         /// <param name="separator">The character to use as a separator in error codes (e.g. '-', '.', '_').</param>
         public void SetErrorCodeSeparator(char separator)
         {
+            ArgumentOutOfRangeException.ThrowIfEqual(separator, '\0', nameof(separator));
+
+            if (char.IsWhiteSpace(separator))
+            {
+                throw new ArgumentException("Separator cannot be empty or whitespace.", nameof(separator));
+            }
+
             ErrorOptions.Separator = separator;
         }
 
@@ -71,6 +79,25 @@ namespace ArbitratR.CQRS
             {
                 AddScoped(assembly, typeof(ICommandHandler<>));
                 AddScoped(assembly, typeof(ICommandHandler<,>));
+            }
+        }
+
+        /// <summary>
+        /// Registers the domain events dispatcher and all domain event handlers from the specified assemblies.
+        /// </summary>
+        /// <param name="assemblies">The assemblies to scan for domain event handlers. If none are provided, the calling assembly is used.</param>
+        public void AddDomainEventHandlers(params Assembly[] assemblies)
+        {
+            if (assemblies is null || assemblies.Length == 0)
+            {
+                assemblies = [Assembly.GetCallingAssembly()];
+            }
+
+            _services.AddSingleton<IDomainEventsDispatcher, DomainEventsDispatcher>();
+
+            foreach (var assembly in assemblies)
+            {
+                AddScoped(assembly, typeof(IDomainEventHandler<>));
             }
         }
 

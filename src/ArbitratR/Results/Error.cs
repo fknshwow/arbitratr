@@ -1,4 +1,4 @@
-﻿namespace ArbitratR.Results
+namespace ArbitratR.Results
 {
     /// <summary>
     /// Represents an error with a code and optional description.
@@ -33,9 +33,6 @@
     /// <summary>
     /// Represents a validation error containing one or more validation failures.
     /// </summary>
-    /// <param name="Code">The error code that uniquely identifies the validation error.</param>
-    /// <param name="Errors">A dictionary of validation errors, where the key is the field name and the value is an array of error messages for that field.</param>
-    /// <param name="Description">A description providing details about the validation error.</param>
     public record ValidationError : Error
     {
         /// <summary>

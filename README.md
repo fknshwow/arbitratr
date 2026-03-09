@@ -1,11 +1,12 @@
 # ArbitratR
 
-A comprehensive CQRS (Command Query Responsibility Segregation) library for .NET applications that enforces the Result pattern for robust error handling and provides seamless dependency injection integration.
+A comprehensive CQRS (Command Query Responsibility Segregation) library for .NET applications that enforces the Result pattern for robust error handling, provides domain event support, and offers seamless dependency injection integration.
 
 ## Features
 
 - 🎯 **Clean CQRS Implementation** - Separate command and query handling with clear interfaces
 - ✅ **Enforced Result Pattern** - All operations return `Result<T>` for consistent error handling
+- 📡 **Domain Events** - Built-in support for raising and dispatching domain events
 - 🔧 **Flexible Configuration** - Multiple registration strategies for handlers
 - 📦 **Dependency Injection Ready** - Built-in support for Microsoft.Extensions.DependencyInjection
 - 🚀 **High Performance** - Lightweight with minimal overhead
@@ -29,9 +30,12 @@ services.AddArbitratR(config =>
 {
     // Register handlers from current assembly
     config.AddHandlers();
-    
+
     // Or register from specific assemblies
     config.AddHandlers(typeof(MyHandler).Assembly, typeof(AnotherHandler).Assembly);
+
+    // Register domain event dispatcher and handlers
+    config.AddDomainEventHandlers();
 });
 ```
 
@@ -151,6 +155,128 @@ public class UsersController : ControllerBase
 }
 ```
 
+## Domain Events
+
+ArbitratR provides built-in support for raising and dispatching domain events, following Domain-Driven Design (DDD) patterns.
+
+### 1. Define a Domain Event
+
+Domain events implement the `IDomainEvent` marker interface:
+
+```csharp
+using ArbitratR.Events;
+
+public record UserCreatedEvent(int UserId, string Email) : IDomainEvent;
+
+public record OrderPlacedEvent(int OrderId, decimal Total) : IDomainEvent;
+```
+
+### 2. Create a Domain Entity
+
+Inherit from `DomainEntity` to gain domain event support. Use `Raise()` to queue events from within your domain logic:
+
+```csharp
+using ArbitratR.Events;
+
+public class User : DomainEntity
+{
+    public int Id { get; private set; }
+    public string Email { get; private set; }
+
+    public static User Create(string email)
+    {
+        var user = new User { Email = email };
+        user.Raise(new UserCreatedEvent(user.Id, user.Email));
+        return user;
+    }
+}
+```
+
+### 3. Implement Event Handlers
+
+Create handlers for each domain event by implementing `IDomainEventHandler<T>`:
+
+```csharp
+using ArbitratR.Events;
+
+public class SendWelcomeEmailHandler : IDomainEventHandler<UserCreatedEvent>
+{
+    private readonly IEmailService _emailService;
+
+    public SendWelcomeEmailHandler(IEmailService emailService)
+    {
+        _emailService = emailService;
+    }
+
+    public async Task Handle(UserCreatedEvent domainEvent, CancellationToken cancellationToken)
+    {
+        await _emailService.SendWelcomeEmailAsync(domainEvent.Email, cancellationToken);
+    }
+}
+
+// Multiple handlers can subscribe to the same event
+public class AuditUserCreationHandler : IDomainEventHandler<UserCreatedEvent>
+{
+    private readonly IAuditLogger _auditLogger;
+
+    public AuditUserCreationHandler(IAuditLogger auditLogger)
+    {
+        _auditLogger = auditLogger;
+    }
+
+    public async Task Handle(UserCreatedEvent domainEvent, CancellationToken cancellationToken)
+    {
+        await _auditLogger.LogAsync($"User {domainEvent.UserId} created", cancellationToken);
+    }
+}
+```
+
+### 4. Register Domain Event Handlers
+
+```csharp
+services.AddArbitratR(config =>
+{
+    config.AddHandlers();
+
+    // Register dispatcher and handlers from calling assembly
+    config.AddDomainEventHandlers();
+
+    // Or from specific assemblies
+    config.AddDomainEventHandlers(typeof(SendWelcomeEmailHandler).Assembly);
+});
+```
+
+### 5. Dispatch Domain Events
+
+Inject `IDomainEventsDispatcher` and dispatch events after persisting your entities:
+
+```csharp
+public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, User>
+{
+    private readonly IUserRepository _userRepository;
+    private readonly IDomainEventsDispatcher _dispatcher;
+
+    public CreateUserCommandHandler(IUserRepository userRepository, IDomainEventsDispatcher dispatcher)
+    {
+        _userRepository = userRepository;
+        _dispatcher = dispatcher;
+    }
+
+    public async Task<Result<User>> HandleAsync(CreateUserCommand command, CancellationToken cancellationToken)
+    {
+        var user = User.Create(command.Email);
+
+        await _userRepository.AddAsync(user, cancellationToken);
+
+        // Dispatch events after persistence
+        await _dispatcher.DispatchAsync(user.DomainEvents, cancellationToken);
+        user.ClearDomainEvents();
+
+        return Result<User>.Success(user);
+    }
+}
+```
+
 ## Configuration Options
 
 ```csharp
@@ -158,13 +284,19 @@ services.AddArbitratR(config =>
 {
     // Register all handlers from calling assembly
     config.AddHandlers();
-    
+
     // Register from specific assemblies
     config.AddHandlers(typeof(UserHandler).Assembly, typeof(OrderHandler).Assembly);
-    
+
     // Register only commands or queries
     config.AddCommandHandlers(typeof(Commands).Assembly);
     config.AddQueryHandlers(typeof(Queries).Assembly);
+
+    // Register domain event dispatcher and handlers
+    config.AddDomainEventHandlers(typeof(EventHandlers).Assembly);
+
+    // Customise the error code separator (default is '-')
+    config.SetErrorCodeSeparator('.');
 });
 ```
 
@@ -306,6 +438,13 @@ public async Task<Result<User>> GetUserAsync(int id)
 - Register handlers using the provided configuration methods
 - Prefer constructor injection for handler dependencies
 - Use scoped lifetime for handlers (default behavior)
+
+### 6. Domain Events
+- Raise domain events within your domain logic, not in handlers or controllers
+- Dispatch events after persistence to ensure consistency
+- Clear domain events after dispatching to prevent duplicate processing
+- Keep event handlers focused on a single side effect
+- Multiple handlers can subscribe to the same event for different concerns
 
 ## License
 
